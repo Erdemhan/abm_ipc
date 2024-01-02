@@ -2,6 +2,7 @@ import paralel
 import ConnectionService
 from agent import Agent
 import multiprocessing
+from functools import partial
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
 sqliteConn,sqliteCur = ConnectionService.connectSqlite()
@@ -15,9 +16,10 @@ def run(agents: [Agent]):
 
 def dbMethodPostgres(agents: [Agent]) -> [Agent]:
     with multiprocessing.Pool() as pool:
-        pool.map(paralel.runWithPostgres, agents)
+        pool.map(paralel.runWithPostgres,agents)
     pool.close()
     pool.join()
+    pool.terminate()
     res = dbMethodUpdatePostgres(agents)
     return res
 
@@ -32,7 +34,7 @@ def dbMethodUpdatePostgres(agents: [Agent]) -> [Agent]:
 
 def dbMethodSqlite(agents: [Agent]) -> [Agent]:
     with multiprocessing.Pool() as pool:
-        pool.map(paralel.runWithPostgres, agents)
+        pool.map(paralel.runWithSqlite, agents)
     pool.close()
     pool.join()
 
@@ -41,7 +43,7 @@ def dbMethodSqlite(agents: [Agent]) -> [Agent]:
 
 def dbMethodUpdateSqlite(agents: [Agent]) -> [Agent]:
     for agent in agents:
-        sqliteCur.execute('SELECT * from agent WHERE id= %s',[agent.id])
+        sqliteCur.execute('SELECT * from agent WHERE id= ?',[agent.id])
         agentData = sqliteCur.fetchone()
-        agent.id,agent.state = agentData[0],agentData[1]
+        agent.id,agent.state,agent.num = agentData[0],agentData[1],agentData[2]
     return agents

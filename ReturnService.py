@@ -2,7 +2,8 @@ import paralel
 from agent import Agent
 import multiprocessing
 import ConnectionService
-
+from psycopg2.extras import execute_values
+from functools import partial
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
 sqliteConn,sqliteCur = ConnectionService.connectSqlite()
@@ -12,7 +13,7 @@ def run(agents: [Agent]):
 
 def returny(agents: [Agent]):
     with multiprocessing.Pool() as pool:
-        results = pool.map(paralel.runWithReturn, agents)
+        results = pool.starmap(paralel.runWithReturn,agents)
     pool.close()
     pool.join()
     #DbMethod.updateReturny(results)
@@ -21,9 +22,10 @@ def returny(agents: [Agent]):
 
 
 # Return Method
-def updateReturny(result):
-    agent = result[0]
-    offer = result[1]
-    postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
-    postgresCur.execute('INSERT into offer(aid,price) VALUES (%s, %s) RETURNING id;',[agent.id,offer.price])
+def updateReturny(results):
+    for result in results:
+        agent = result[0]
+        offer = result[1]
+        postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
+        postgresCur.execute('INSERT into offer(data) VALUES (%s) RETURNING id;',[offer.data])
     postgresConn.commit()

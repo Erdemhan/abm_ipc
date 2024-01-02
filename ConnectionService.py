@@ -10,6 +10,7 @@ def connectPostgres():
             password="admin",
             database="bildiri"
         )
+        conn.set_client_encoding('UTF8')
     except psycopg2.Error as e:
         print("Error connecting to the database:")
         print(e)
@@ -27,7 +28,7 @@ def connectSqlite():
 
 
 def createSqliteTables(cur,conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS agent( id INTEGER PRIMARY KEY AUTOINCREMENT, state text);")
+    cur.execute("CREATE TABLE IF NOT EXISTS agent( id INTEGER PRIMARY KEY AUTOINCREMENT, state text, num integer);")
     cur.execute("CREATE TABLE IF NOT EXISTS offer( id INTEGER PRIMARY KEY AUTOINCREMENT,aid integer, price INTEGER, FOREIGN KEY(aid) REFERENCES agent(id) );")
     conn.commit()
 
