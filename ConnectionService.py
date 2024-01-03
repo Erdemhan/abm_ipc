@@ -10,7 +10,6 @@ def connectPostgres():
             password="admin",
             database="bildiri"
         )
-        conn.set_client_encoding('UTF8')
     except psycopg2.Error as e:
         print("Error connecting to the database:")
         print(e)

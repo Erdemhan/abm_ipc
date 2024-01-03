@@ -12,7 +12,7 @@ sqliteConn,sqliteCur = ConnectionService.connectSqlite()
 def runWithReturn(agent: Agent) -> (Agent,bool):
     agent.state = "returned"
     agent.num += 1
-    offer = Offer()
+    offer = offer = Offer(aid=agent.id)
     #matrixMul()
     return (agent,offer)
 
@@ -21,9 +21,9 @@ def runWithReturn(agent: Agent) -> (Agent,bool):
 def runWithPostgres(agent: Agent) -> None:
     agent.state = "post"
     agent.num += 1
-    offer = Offer()
+    offer = Offer(aid=agent.id)
     postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
-    postgresCur.execute('INSERT into offer(data) VALUES (%s)',[offer.data])
+    postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)',[offer.data,agent.id])
     postgresConn.commit()
     #matrixMul()
 

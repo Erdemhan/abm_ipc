@@ -13,7 +13,7 @@ def run(agents: [Agent]):
 
 def returny(agents: [Agent]):
     with multiprocessing.Pool() as pool:
-        results = pool.starmap(paralel.runWithReturn,agents)
+        results = pool.map(paralel.runWithReturn,agents)
     pool.close()
     pool.join()
     #DbMethod.updateReturny(results)
@@ -27,5 +27,5 @@ def updateReturny(results):
         agent = result[0]
         offer = result[1]
         postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
-        postgresCur.execute('INSERT into offer(data) VALUES (%s) RETURNING id;',[offer.data])
+        postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s) RETURNING id;',[offer.data,agent.id])
     postgresConn.commit()

@@ -36,3 +36,12 @@ def createAgentList(num:int , post: bool) -> [Agent]:
             agents.append(createAgentSqlite())
     return agents
 
+
+def createAgentList(num:int) -> [Agent]:
+    agents = []
+    for i in range(num):
+        agents.append(createAgentPostgres())
+
+    return agents
+
+
