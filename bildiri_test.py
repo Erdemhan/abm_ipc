@@ -4,6 +4,7 @@ import AgentService
 import ReturnService
 import DbMethod
 import RedisService
+import serial
 
 
 ISPOST = True
@@ -11,8 +12,18 @@ ISPOST = True
 
 def main(period: int,N: int):
 
-    agents = AgentService.createAgentList(N)
+    ss = timeit.default_timer()
 
+    agents = AgentService.createAgentList(N)
+    for i in range(period):
+        serial.run(agents)
+
+    sf = timeit.default_timer()
+    st = sf-ss
+    print("Serial: ",st)  
+
+
+    
     dbs = timeit.default_timer()
     for i in range(period):  
         agents = DbMethod.run(agents)
@@ -34,14 +45,17 @@ def main(period: int,N: int):
 
     print("DB - R : ", dbt - rt)
     print("DB / R : ", dbt/rt)
-
+    print("\n")
+    print("DB - S : ", dbt - st)
+    print("DB / S : ", dbt/st)
+    
 
 # KB büyüyünce db daha iyi
 # 100kb de ajan sayısı arttıkça db daha iyi , period neredeyse etkisiz
 # 1kb da ajan sayısı azaldıkça db daha iyi , period neredeyse etkisiz
 
 if __name__ == "__main__":
-    period=100
-    N=50
+    period=2
+    N=10
     print("Period: " , period , "  N: " , N)
     main(period,N)

@@ -6,14 +6,13 @@ from reader import*
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
 sqliteConn,sqliteCur = ConnectionService.connectSqlite()
-
+import timeit
 
 
 def runWithReturn(agent: Agent) -> (Agent,bool):
     agent.state = "returned"
     agent.num += 1
     offer = offer = Offer(aid=agent.id)
-    #matrixMul()
     return (agent,offer)
 
 
@@ -25,7 +24,12 @@ def runWithPostgres(agent: Agent) -> None:
     postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
     postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)',[offer.data,agent.id])
     postgresConn.commit()
-    #matrixMul()
+    
+def matrixMul():
+    for i in range(5000):
+            array1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [7, 8, 9], [7, 8, 9], [7, 8, 9], [7, 8, 9]], ndmin=7)
+            array2 = np.array([[9, 8, 7], [6, 5, 4], [3, 2, 1], [7, 8, 9], [7, 8, 9], [7, 8, 9], [7, 8, 9]], ndmin=7)
+            result = np.multiply(array1, array2)
 
 """
 def runWithSqlite(agent: Agent) -> None:
