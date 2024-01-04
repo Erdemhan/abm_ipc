@@ -51,6 +51,7 @@ def main(period: int,N: int):
 # KB büyüyünce db daha iyi
 # 100kb de ajan sayısı arttıkça db daha iyi , period neredeyse etkisiz
 # 1kb da ajan sayısı azaldıkça db daha iyi , period neredeyse etkisiz
+# Shared ajan sayısı arttıkça kötüleşiyor , her türlü R ve DB den daha kötü
 
 if __name__ == "__main__":
     period=10
