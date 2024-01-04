@@ -4,8 +4,7 @@ import AgentService
 import ReturnService
 import DbMethod
 import RedisService
-import serial
-
+import SharedMem
 
 ISPOST = True
 
@@ -15,12 +14,11 @@ def main(period: int,N: int):
     ss = timeit.default_timer()
 
     agents = AgentService.createAgentList(N)
-    for i in range(period):
-        serial.run(agents)
+    SharedMem.run(agents,period)
 
     sf = timeit.default_timer()
     st = sf-ss
-    print("Serial: ",st)  
+    print("Shared: ",st)  
 
 
     
@@ -55,7 +53,7 @@ def main(period: int,N: int):
 # 1kb da ajan sayısı azaldıkça db daha iyi , period neredeyse etkisiz
 
 if __name__ == "__main__":
-    period=2
-    N=10
+    period=10
+    N=20
     print("Period: " , period , "  N: " , N)
     main(period,N)
