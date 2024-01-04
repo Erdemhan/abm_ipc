@@ -1,19 +1,27 @@
-import paralel
 from agent import Agent
+from offer import Offer
 import multiprocessing
 import ConnectionService
-from psycopg2.extras import execute_values
-from functools import partial
+
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
 sqliteConn,sqliteCur = ConnectionService.connectSqlite()
 
-def run(agents: [Agent]):
-    return returny(agents)
+def runWithReturn(agent: Agent) -> (Agent,bool):
+    agent.state = "returned"
+    agent.num += 1
+    offer = offer = Offer(aid=agent.id)
+    return (agent,offer)
+
+def run(agents: [Agent], period: int):
+    for i in range(period):
+        results = returny(agents)
+        agents = [result[0] for result in results]
+        updateReturny(results)
 
 def returny(agents: [Agent]):
     with multiprocessing.Pool() as pool:
-        results = pool.map(paralel.runWithReturn,agents)
+        results = pool.map(runWithReturn,agents)
     pool.close()
     pool.join()
     #DbMethod.updateReturny(results)

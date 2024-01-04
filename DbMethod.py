@@ -1,27 +1,34 @@
-import paralel
+import MatrixMul
 import ConnectionService
 from agent import Agent
+from offer import Offer
 import multiprocessing
-from functools import partial
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
-sqliteConn,sqliteCur = ConnectionService.connectSqlite()
+
 
 #DB Method
 
-def run(agents: [Agent]):
-    res = dbMethodPostgres(agents=agents)
-    return res
+def runWithPostgres(agent: Agent) -> None:
+    agent.state = "post"
+    agent.num += 1
+    offer = Offer(aid=agent.id)
+    postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
+    postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)',[offer.data,agent.id])
+    postgresConn.commit()
+
+def run(agents: [Agent],period: int):
+    for i in range(period):
+        dbMethodPostgres(agents=agents)
 
 
 def dbMethodPostgres(agents: [Agent]) -> [Agent]:
     with multiprocessing.Pool() as pool:
-        pool.map(paralel.runWithPostgres,agents)
+        pool.map(runWithPostgres,agents)
     pool.close()
     pool.join()
     pool.terminate()
-    res = dbMethodUpdatePostgres(agents)
-    return res
+    dbMethodUpdatePostgres(agents)
 
 
 def dbMethodUpdatePostgres(agents: [Agent]) -> [Agent]:
@@ -29,12 +36,16 @@ def dbMethodUpdatePostgres(agents: [Agent]) -> [Agent]:
         postgresCur.execute('SELECT * from agent WHERE id= %s',[agent.id])
         agentData = postgresCur.fetchone()
         agent.id,agent.state,agent.num = agentData[0],agentData[1],agentData[2]
-    return agents
 
 
+
+
+
+
+"""
 def dbMethodSqlite(agents: [Agent]) -> [Agent]:
     with multiprocessing.Pool() as pool:
-        pool.map(paralel.runWithSqlite, agents)
+        pool.map(MatrixMul.runWithSqlite, agents)
     pool.close()
     pool.join()
 
@@ -47,3 +58,4 @@ def dbMethodUpdateSqlite(agents: [Agent]) -> [Agent]:
         agentData = sqliteCur.fetchone()
         agent.id,agent.state,agent.num = agentData[0],agentData[1],agentData[2]
     return agents
+"""

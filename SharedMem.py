@@ -1,20 +1,11 @@
 import multiprocessing
-import time
-import psycopg2
 from agent import Agent
 from offer import Offer
-from AgentService import createAgentList
+from MatrixMul import matrixMul
+import ConnectionService
 
-conn_params = {
-    "host": "localhost",
-    "port": "5432",
-    "user": "postgres",
-    "password": "admin",
-    "database": "bildiri"
-}
+postgresConn,postgresCur = ConnectionService.connectPostgres()
 
-conn = psycopg2.connect(**conn_params)
-cursor = conn.cursor()
 
 def add_agents_to_shared_list(shared_list, agents):
     shared_list.extend(agents)
@@ -24,7 +15,7 @@ def update_agents_in_shared_list(agent_id, shared_list):
         if isinstance(item,Agent):
             if item.id == agent_id:
                 # State güncelle
-                item.state = f"Updated State {agent_id}"
+                item.state = "shared"
                 # Num değerini +1 artır
                 item.num += 1
                 shared_list[index] = item
@@ -35,17 +26,19 @@ def update_agents_in_shared_list(agent_id, shared_list):
 
 
 def sync_shared_list_to_postgresql(shared_list,N):
+    if len(shared_list) <= 0:
+        pass
     for item in shared_list:
         if isinstance(item, Agent):
             # Agent nesnesini PostgreSQL'e ekle
-            cursor.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s', [item.state, item.num, item.id])
+            postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s', [item.state, item.num, item.id])
         elif isinstance(item, Offer):
             # Offer nesnesini PostgreSQL'e ekle
-            cursor.execute('INSERT into offer(data,aid) VALUES (%s,%s)', [item.data, item.aid])
-
+            postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)', [item.data, item.aid])
+    postgresConn.commit()
     # Paylaşılan listeyi temizle
     del shared_list[N:]
-    conn.commit()
+    
 
 def paralel(agents, shared_list):
     with multiprocessing.Pool() as pool:
