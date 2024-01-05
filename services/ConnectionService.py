@@ -32,6 +32,4 @@ def createSqliteTables(cur,conn):
     conn.commit()
 
 
-connectSqlite()
-
 

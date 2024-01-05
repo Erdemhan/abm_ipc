@@ -1,13 +1,10 @@
-from agent import Agent
-from offer import Offer
-import ConnectionService
+from models import Agent,Offer
+from services import ConnectionService
 import numpy as np
-from reader import*
 import timeit
 
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
-sqliteConn,sqliteCur = ConnectionService.connectSqlite()
 
 
 def run(agents: [Agent])-> None:
@@ -20,7 +17,7 @@ def serialRunAgent(agent: Agent) -> None:
     agent.num += 1
     offer = Offer(aid=agent.id)
     postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
-    postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)',[offer.data,agent.id])
+    postgresCur.execute('INSERT into offer(data,aid,datasize) VALUES (%s,%s,%s)',[offer.data,agent.id,offer.dataSize])
     postgresConn.commit()
     ss = timeit.default_timer()
     matrixMul()

@@ -1,5 +1,5 @@
-from agent import Agent
-import DbMethod
+from models import Agent
+from methods import DbMethod
 
 
 def createAgentPostgres():

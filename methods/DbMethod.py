@@ -1,7 +1,6 @@
-import MatrixMul
-import ConnectionService
-from agent import Agent
-from offer import Offer
+from . import MatrixMul
+from services import ConnectionService
+from models import Agent, Offer
 import multiprocessing
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
@@ -14,7 +13,7 @@ def runWithPostgres(agent: Agent) -> None:
     agent.num += 1
     offer = Offer(aid=agent.id)
     postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s',[agent.state,agent.num,agent.id])
-    postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)',[offer.data,agent.id])
+    postgresCur.execute('INSERT into offer(data,aid,datasize) VALUES (%s,%s,%s)',[offer.data,agent.id,offer.dataSize])
     postgresConn.commit()
 
 def run(agents: [Agent],period: int):

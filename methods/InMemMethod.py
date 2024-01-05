@@ -1,8 +1,8 @@
+"""
 import psycopg2
 import redis
 import multiprocessing
-from offer import ONEKB
-import AgentService
+from services import AgentService
 
 # PostgreSQL bağlantı bilgileri
 pg_conn_params = {
@@ -94,3 +94,4 @@ if __name__ == "__main__":
 
 
 
+"""

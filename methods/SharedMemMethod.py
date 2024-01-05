@@ -1,8 +1,7 @@
 import multiprocessing
-from agent import Agent
-from offer import Offer
-from MatrixMul import matrixMul
-import ConnectionService
+from models import Agent,Offer
+from . import MatrixMul
+from services import ConnectionService
 
 postgresConn,postgresCur = ConnectionService.connectPostgres()
 
@@ -34,7 +33,7 @@ def sync_shared_list_to_postgresql(shared_list,N):
             postgresCur.execute('UPDATE agent SET state = %s, num = %s WHERE id = %s', [item.state, item.num, item.id])
         elif isinstance(item, Offer):
             # Offer nesnesini PostgreSQL'e ekle
-            postgresCur.execute('INSERT into offer(data,aid) VALUES (%s,%s)', [item.data, item.aid])
+            postgresCur.execute('INSERT into offer(data,aid,datasize) VALUES (%s,%s,%s)',[item.data,item.id,item.dataSize])
     postgresConn.commit()
     # Paylaşılan listeyi temizle
     del shared_list[N:]
